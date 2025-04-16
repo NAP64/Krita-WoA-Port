@@ -1,0 +1,13 @@
+diff --git a/Configurations/10-main.conf b/Configurations/10-main.conf
+index f815a09b23..864490bd83 100644
+--- a/Configurations/10-main.conf
++++ b/Configurations/10-main.conf
+@@ -1270,7 +1270,7 @@ my %targets = (
+         template         => 1,
+         CFLAGS           => add(picker(debug   => '/Od',
+                                        release => '/O2')),
+-        cflags           => add(picker(default => '/Gs0 /GF /Gy',
++        cflags           => add(picker(default => '/GF /Gy',#/Gs0 
+                                        debug   =>
+                                        sub {
+                                            ($disabled{shared} ? "" : "/MDd");
