@@ -59,13 +59,14 @@ Before compile libintl, compile and install gettext.
 
 Make sure you have the _install from previous step in an appropriate place and use it.
 
-This will compile and produce Krita exe. I have not tested with Clang19 but Clang18 works. 
+This will compile and produce Krita exe. Minor fixes needed.
+I have manually corrected python module installations and and removed benchmarks/kis_composition_benchmark_NEON64.cpp:643
 
 **Icoutils does not compile, so I copied the Krita installation's icon and comtinued the build.**
 
 ## Testing ##
 
-w/ Clang18 and system freetype in qt5
+w/ Clang18
 
          24 - libs-flake-TestPathTool (Failed)
          47 - libs-flake-TestSvgParser (Failed)
@@ -83,3 +84,21 @@ w/ Clang18 and system freetype in qt5
         291 - plugins-impex-KisHeifTest (Failed)
 
 qt5-base has many failed tests by itself, even with x64 build. On Windows on Arm, some tests fail, but not with the debug test exe. Not sure why.
+
+w/ Clang19
+
+         24 - libs-flake-TestPathTool (Failed)
+         47 - libs-flake-TestSvgParser (Failed)
+         48 - libs-flake-TestSvgParserCloned (Failed)
+         49 - libs-flake-TestSvgParserRoundTrip (Failed)
+         51 - libs-pigment-TestKoColorSet (ILLEGAL)
+        166 - libs-image-kis_walkers_test (Failed)
+        167 - libs-image-kis_cage_transform_worker_test (Failed)
+        215 - libs-ui-kis_shape_layer_test (Failed)
+        229 - libs-ui-kis_shape_controller_test (SEGFAULT)
+        230 - libs-ui-kis_dummies_facade_test (SEGFAULT)
+        265 - plugins-dockers-animation-timeline_model_test (Failed)
+        271 - plugins-generators-kis_seexpr_generator_test (Failed)
+        273 - plugins-impex-kis_kra_saver_test (SEGFAULT)
+
+Looks like some errors are due to compiler. Will try Clang20 next. 
