@@ -23,6 +23,8 @@ Porting Krita to Windows on Arm64
 
 *This will be a wild ride since I've never used CI before. lmk if there are better practise.*
 
+Apply the patch: git apply --whitespace=fix krita-deps-management\000-krita-deps.patch
+
 Command to run all builds *Not really working somehow*: 
 **python -u ci-utilities/seed-package-registry.py --seed-file latest/krita-deps.yml --platform Windows/Qt5/Shared --skip-dependencies-fetch**
 
