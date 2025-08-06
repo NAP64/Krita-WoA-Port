@@ -348,33 +348,3 @@ index 0000000..deadbeef
 + #endif /* HAVE_NEON */
 +   return flags & mask;
 \ No newline at end of file
-diff --git a/ext_python/CMakeLists.txt b/ext_python/CMakeLists.txt
-index b732b94..abfb445 100644
---- a/ext_python/CMakeLists.txt
-+++ b/ext_python/CMakeLists.txt
-@@ -112,6 +112,8 @@ if (UNIX)
- 
-     endif()
- elseif(WIN32)
-+    set(Python_FIND_STRATEGY LOCATION)
-+    find_package(Python 3.10 COMPONENTS Development Interpreter)
-     ExternalProject_Add( ext_python
-         DOWNLOAD_DIR ${EXTERNALS_DOWNLOAD_DIR}
-         URL https://www.python.org/ftp/python/3.10.7/python-3.10.7-embed-amd64.zip
-@@ -120,11 +122,11 @@ elseif(WIN32)
-         CONFIGURE_COMMAND ""
-         BUILD_COMMAND ""
-         INSTALL_COMMAND ${CMAKE_COMMAND} -E echo deploying python3 64-bit binary
--                COMMAND ${CMAKE_COMMAND} -DSRC=<SOURCE_DIR>/ -DDST=${EXTPREFIX}/python -P ${KRITA_CI_INSTALL_DIRECTORY}
--                COMMAND ${CMAKE_COMMAND} -DSRC=<SOURCE_DIR>/python3.dll -DDST=${EXTPREFIX}/bin -P  ${KRITA_CI_INSTALL}
--                COMMAND ${CMAKE_COMMAND} -DSRC=<SOURCE_DIR>/python310.dll -DDST=${EXTPREFIX}/bin -P  ${KRITA_CI_INSTALL}
--                COMMAND ${CMAKE_COMMAND} -DSRC=<SOURCE_DIR>/vcruntime140.dll -DDST=${EXTPREFIX}/bin -P  ${KRITA_CI_INSTALL}
--                COMMAND ${CMAKE_COMMAND} -DSRC=<SOURCE_DIR>/vcruntime140_1.dll -DDST=${EXTPREFIX}/bin -P  ${KRITA_CI_INSTALL}
-+                COMMAND ${CMAKE_COMMAND} -DSRC=${Python_INCLUDE_DIRS}/../ -DDST=${EXTPREFIX}/python -P ${KRITA_CI_INSTALL_DIRECTORY}
-+                COMMAND ${CMAKE_COMMAND} -DSRC=${Python_INCLUDE_DIRS}/../python3.dll -DDST=${EXTPREFIX}/bin -P  ${KRITA_CI_INSTALL}
-+                COMMAND ${CMAKE_COMMAND} -DSRC=${Python_INCLUDE_DIRS}/../python310.dll -DDST=${EXTPREFIX}/bin -P  ${KRITA_CI_INSTALL}
-+                COMMAND ${CMAKE_COMMAND} -DSRC=${Python_INCLUDE_DIRS}/../vcruntime140.dll -DDST=${EXTPREFIX}/bin -P  ${KRITA_CI_INSTALL}
-+                COMMAND ${CMAKE_COMMAND} -DSRC=${Python_INCLUDE_DIRS}/../vcruntime140_1.dll -DDST=${EXTPREFIX}/bin -P  ${KRITA_CI_INSTALL}
-                 COMMAND ${CMAKE_COMMAND} -DSRC=${CMAKE_CURRENT_SOURCE_DIR}/sitecustomize.py -DDST=${EXTPREFIX}/lib/site-packages/ -P  ${KRITA_CI_INSTALL}
-                 # we install _distutils_system_mod.py on Windows only!
-                 COMMAND ${CMAKE_COMMAND} -DSRC=${CMAKE_CURRENT_SOURCE_DIR}/_distutils_system_mod.py -DDST=${EXTPREFIX}/lib/site-packages/ -P  ${KRITA_CI_INSTALL}
