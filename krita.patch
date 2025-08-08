@@ -1,0 +1,54 @@
+diff --git a/packaging/windows/package-complete.py b/packaging/windows/package-complete.py
+index 72b40cef6e..b4d5074867 100644
+--- a/packaging/windows/package-complete.py
++++ b/packaging/windows/package-complete.py
+@@ -298,7 +298,11 @@ for archLine in targetArchLines:
+             TARGET_ARCH_LINE = archLine
+ print(f"-- {TARGET_ARCH_LINE}")
+ IS_x64 = False
+-if not re.search("x86-64", TARGET_ARCH_LINE):
++IS_arm64 = False
++if re.search("arm64", TARGET_ARCH_LINE):
++    print("Target looks like arm64")
++    IS_arm64 = True
++elif not re.search("x86-64", TARGET_ARCH_LINE):
+     print("Target looks like x86")
+ else:
+     print("Target looks like x86_64")
+@@ -343,14 +347,20 @@ if IS_TDM:
+                # TDM-GCC x64
+         os.environ['STDLIBS'] = "libgomp_64-1"
+ elif IS_MSYS:
+-    if not IS_x64:
++    if IS_arm64:
++               # msys-mingw-w64 arm64
++        os.environ['STDLIBS'] = "libgcc_s_dw2-1 libgomp-1 libstdc++-6 libwinpthread-1 libatomic-1 libiconv-2 zlib1 libexpat-1 libintl-8 libssl-1_1-arm64 libcrypto-1_1-arm64"
++    elif not IS_x64:
+                # msys-mingw-w64 x86
+         os.environ['STDLIBS'] = "libgcc_s_dw2-1 libgomp-1 libstdc++-6 libwinpthread-1 libatomic-1 libiconv-2 zlib1 libexpat-1 libintl-8 libssl-1_1 libcrypto-1_1"
+     else:
+                # msys-mingw-w64 x64
+         os.environ['STDLIBS'] = "libgcc_s_seh-1 libgomp-1 libstdc++-6 libwinpthread-1 libatomic-1 libiconv-2 zlib1 libexpat-1 libintl-8 libssl-1_1-x64 libcrypto-1_1-x64"
+ elif IS_MSYS_CLANG:
+-    if not IS_x64:
++    if IS_arm64:
++               # msys-mingw-w64-clang64 arm64
++        os.environ['STDLIBS'] = "libomp libssp-0 libunwind libc++ libwinpthread-1 libiconv-2 zlib1 libexpat-1 libintl-8 libssl-1_1-arm64 libcrypto-1_1-arm64"
++    elif not IS_x64:
+                # msys-mingw-w64-clang64 x86
+         os.environ['STDLIBS'] = "libomp libssp-0 libunwind libc++ libwinpthread-1 libiconv-2 zlib1 libexpat-1 libintl-8 libssl-1_1 libcrypto-1_1"
+     else:
+@@ -359,9 +369,12 @@ elif IS_MSYS_CLANG:
+ elif IS_LLVM_MINGW:
+     # llvm-mingw
+     os.environ['STDLIBS'] = "libc++ libomp libssp-0 libunwind libwinpthread-1"
++    if IS_arm64:
++        asanLibName = 'libclang_rt.asan_dynamic-aarch64'
++        os.environ['STDLIBS_DIR'] = fr"{os.environ['MINGW_BIN_DIR']}\..\aarch64-w64-mingw32\bin"
+     # The toolchain does not include all of the DLLs in the compiler bin dir,
+     # so we need to copy them from the cross target bin dir.
+-    if not IS_x64:
++    elif not IS_x64:
+         asanLibName ='libclang_rt.asan_dynamic-i386'
+         os.environ['STDLIBS_DIR'] = fr"{os.environ['MINGW_BIN_DIR']}\..\i686-w64-mingw32\bin"
+     else:

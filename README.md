@@ -50,9 +50,13 @@ Porting Krita to Windows on Arm64
 
 *This will be a wild ride since I've never used CI before. lmk if there are better practise.*
 
-Apply the patch: git apply krita-deps-management\000-krita-deps.patch
+Apply the patch first: 
 
-        python krita-deps-management\tools\setup-env.py *-d* -v PythonEnv -p \<llvm-mingw-path\>\bin\ -p \<llvm-mingw-path\>\aarch64-w64-mingw32\bin\ -p \<ninja-path\>
+        git apply <path to this repo>\krita-deps-management\000-krita-deps.patch
+
+Run:
+
+        python krita-deps-management\tools\setup-env.py *-d* -v PythonEnv -p <llvm-mingw-path>\bin\ -p <llvm-mingw-path>\aarch64-w64-mingw32\bin\ -p <ninja-path>
         base-env.bat
 
 Set your _install dir of choice as KDECI_SHARED_INSTALL_PATH
@@ -71,7 +75,7 @@ Run the command to run all builds:
 
 Command to compile one dependency, for reference: 
 
-        python -u ..\ci-utilities\run-ci-build.py --project ext_\<name> --branch master --platform Windows/Qt5/Shared --only-build --fail-on-leaked-stage-files --skip-dependencies-fetch**
+        python -u ..\ci-utilities\run-ci-build.py --project ext_<name> --branch master --platform Windows/Qt5/Shared --only-build --fail-on-leaked-stage-files --skip-dependencies-fetch
 
 There are a few dependencies that won't compile for Windows on Arm, commented out in latest/krita.dep, check diff to find out.
 Among them, brotli can compile w/o libjxl or highway (patched).
@@ -91,30 +95,36 @@ Set PYTHONPATH to \<deps _install dir\>\lib\site-packages
 Point -DMAKE_INSTALL_PREFIX to your _install dir of choice, Krita will compile normally with one simple fix: Copy krita.ico and kritafile.ico from a Krita installation to b_krita/krita.
 This is needed since icoutils won't compile for aarch64.
 
-To package, run
+To package:
 
-        python \<krita src\>\packaging\windows\package-complete.py --src-dir \<krita src\>\ --deps-install-dir \<deps _install dir\> --krita-install-dir \<deps _install dir\> --package-name \<krita name of choice\>**
+Apply the patch to krita src:
+
+        git apply <path to this repo>\krita.patch
+
+Run the following, a zip with your name of choice will be created:
+
+        python <krita src>\packaging\windows\package-complete.py --src-dir <krita src>\ --deps-install-dir <deps _install dir> --krita-install-dir <deps _install dir> --package-name <krita name of choice>
 
 ## Testing ##
 
-w/ Clang18:
+w/ Clang18 (delta from x84-64 version with downloaded dependencies is labeled with +):
 
-         24 - libs-flake-TestPathTool (Failed)
-         47 - libs-flake-TestSvgParser (Failed)
-         48 - libs-flake-TestSvgParserCloned (Failed)
-         49 - libs-flake-TestSvgParserRoundTrip (Failed)
-         51 - libs-pigment-TestKoColorSet (ILLEGAL)
-        163 - libs-image-kis_onion_skin_compositor_test (Failed)
-        165 - libs-image-kis_image_animation_interface_test (Failed)
-        166 - libs-image-kis_walkers_test (Failed)
-        167 - libs-image-kis_cage_transform_worker_test (Failed)
-        216 - libs-ui-KisSafeDocumentLoaderTest (Failed)
-        229 - libs-ui-kis_shape_controller_test (SEGFAULT)
-        230 - libs-ui-kis_dummies_facade_test (SEGFAULT)
-        265 - plugins-dockers-animation-timeline_model_test (Failed)
-        271 - plugins-generators-kis_seexpr_generator_test (Failed)
-        273 - plugins-impex-kis_kra_saver_test (SEGFAULT)
-        299 - plugins-tooltransform-test_animated_transform_parameters (Failed)
+           24 - libs-flake-TestPathTool (Failed)
+        +  47 - libs-flake-TestSvgParser (Failed)
+        +  48 - libs-flake-TestSvgParserCloned (Failed)
+           49 - libs-flake-TestSvgParserRoundTrip (Failed)
+           51 - libs-pigment-TestKoColorSet (ILLEGAL)
+          163 - libs-image-kis_onion_skin_compositor_test (Failed)
+          165 - libs-image-kis_image_animation_interface_test (Failed)
+          166 - libs-image-kis_walkers_test (Failed)
+        + 167 - libs-image-kis_cage_transform_worker_test (Failed)
+        + 216 - libs-ui-KisSafeDocumentLoaderTest (Failed)
+          229 - libs-ui-kis_shape_controller_test (SEGFAULT)
+          230 - libs-ui-kis_dummies_facade_test (SEGFAULT)
+          265 - plugins-dockers-animation-timeline_model_test (Failed)
+        + 271 - plugins-generators-kis_seexpr_generator_test (Failed)
+        + 273 - plugins-impex-kis_kra_saver_test (SEGFAULT)
+        + 299 - plugins-tooltransform-test_animated_transform_parameters (Failed)
 
 qt5-base has many failed tests by itself, even with x64 build. On Windows on Arm, some tests fail, but not with the debug test exe. Not sure why.
 
