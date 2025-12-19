@@ -43,7 +43,7 @@ Apply the patch first:
 
         git apply <path to this repo>\krita-deps-management\krita-deps-management.patch
         git config --local core.autocrlf input
-        git apply <path to this repo>\krita-deps-management\pyqt-builder.patch
+        git apply <path to this repo>\krita-deps-management\pyqt-builder.patch.lf
 
 Run:
 
