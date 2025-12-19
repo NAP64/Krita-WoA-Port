@@ -95,21 +95,46 @@ index e0504de..50857c1 100644
          -DCMAKE_PREFIX_PATH=${EXTPREFIX}
          ${GLOBAL_PROFILE}
  
-diff --git a/ext_png/CMakeLists.txt b/ext_png/CMakeLists.txt
-index 11da76c..7f437fc 100644
---- a/ext_png/CMakeLists.txt
-+++ b/ext_png/CMakeLists.txt
-@@ -12,7 +12,9 @@ kis_ExternalProject_Add_with_separate_builds_apple(
-     URL https://downloads.sourceforge.net/project/libpng/libpng16/1.6.38/libpng-1.6.38.tar.xz
-     URL_HASH SHA256=b3683e8b8111ebf6f1ac004ebb6b0c975cd310ec469d98364388e9cedbfa68be
- 
--    CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${EXTPREFIX} -DCMAKE_BUILD_TYPE=${GLOBAL_BUILD_TYPE} ${GLOBAL_PROFILE} -DPNG_TESTS=OFF
-+    PATCH_COMMAND ${PATCH_COMMAND} -p1 -i ${CMAKE_CURRENT_SOURCE_DIR}/0001-winarm-fix-case-sensitive.patch
+diff --git a/ext_libaom/0000-non-MSVC-Windows-ARM-build.patch b/ext_libaom/0000-non-MSVC-Windows-ARM-build.patch
+new file mode 100644
+index 0000000..15380ad
+--- /dev/null
++++ b/ext_libaom/0000-non-MSVC-Windows-ARM-build.patch
+@@ -0,0 +1,33 @@
++diff --git a/aom_ports/arm_cpudetect.c b/aom_ports/arm_cpudetect.c
++index 305b22c..775c45d 100644
++--- a/aom_ports/arm_cpudetect.c
+++++ b/aom_ports/arm_cpudetect.c
++@@ -56,7 +56,7 @@ int aom_arm_cpu_caps(void) {
++   return flags & mask;
++ }
 +
-+    CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${EXTPREFIX} -DCMAKE_BUILD_TYPE=${GLOBAL_BUILD_TYPE} ${GLOBAL_PROFILE} -DPNG_TESTS=ON
- 
-     UPDATE_COMMAND ""
- )
++-#elif defined(_MSC_VER) /* end !CONFIG_RUNTIME_CPU_DETECT || __APPLE__ */
+++#elif defined(_MSC_VER) || defined(_WIN32) /* end !CONFIG_RUNTIME_CPU_DETECT || __APPLE__ */
++ /*For GetExceptionCode() and EXCEPTION_ILLEGAL_INSTRUCTION.*/
++ #undef WIN32_LEAN_AND_MEAN
++ #define WIN32_LEAN_AND_MEAN
++@@ -77,13 +77,13 @@ int aom_arm_cpu_caps(void) {
++  */
++ #if HAVE_NEON
++   if (mask & HAS_NEON) {
++-    __try {
++-      /*VORR q0,q0,q0*/
++-      __emit(0xF2200150);
+++    //__try {
+++    //  /*VORR q0,q0,q0*/
+++    //  __emit(0xF2200150);
++       flags |= HAS_NEON;
++-    } __except (GetExceptionCode() == EXCEPTION_ILLEGAL_INSTRUCTION) {
++-      /*Ignore exception.*/
++-    }
+++    //} __except (GetExceptionCode() == EXCEPTION_ILLEGAL_INSTRUCTION) {
+++    //  /*Ignore exception.*/
+++    //}
++   }
++ #endif /* HAVE_NEON */
++   return flags & mask;
+\ No newline at end of file
 diff --git a/ext_libaom/CMakeLists.txt b/ext_libaom/CMakeLists.txt
 index a9619f8..0e6312d 100644
 --- a/ext_libaom/CMakeLists.txt
@@ -122,18 +147,26 @@ index a9619f8..0e6312d 100644
  
      # Static library is needed because ffmpeg accesses aom_codec_av1_dx_algo
      # which is not exported in Windows compilers.
-diff --git a/ext_vpx/CMakeLists.txt b/ext_vpx/CMakeLists.txt
-index 47764de..3011a4f 100644
---- a/ext_vpx/CMakeLists.txt
-+++ b/ext_vpx/CMakeLists.txt
-@@ -32,6 +32,7 @@ kis_ExternalProject_Add_with_separate_builds_apple(
-     # I guess it is related to the MSVC support. Since we use clang for
-     # our builds, it should be fine just to ignore this check
-     PATCH_COMMAND ${PATCH_COMMAND} -p1 -i ${CMAKE_CURRENT_SOURCE_DIR}/0001-Allow-shared-libraries-everywhere.patch
-+          COMMAND ${PATCH_COMMAND} -p1 -i ${CMAKE_CURRENT_SOURCE_DIR}/0000-windows-python-workaround.patch
- 
-     CONFIGURE_ARGS --prefix=${EXTPREFIX}
-             -Ddefault_library=shared
+diff --git a/ext_poppler/0000-clang-basic_string.patch b/ext_poppler/0000-clang-basic_string.patch
+new file mode 100644
+index 0000000..dca88a2
+--- /dev/null
++++ b/ext_poppler/0000-clang-basic_string.patch
+@@ -0,0 +1,13 @@
++diff --git a/cpp/poppler-global.h b/cpp/poppler-global.h
++index 7d3c890..26a2d00 100644
++--- a/cpp/poppler-global.h
+++++ b/cpp/poppler-global.h
++@@ -96,7 +96,7 @@ typedef unsigned int /* time_t */ time_type;
++ #    pragma warning(push)
++ #    pragma warning(disable : 4251) /* class 'A' needs to have dll interface for to be used by clients of class 'B'. */
++ #endif
++-class POPPLER_CPP_EXPORT ustring : public std::basic_string<unsigned short>
+++class POPPLER_CPP_EXPORT ustring : public std::basic_string<char16_t>
++ {
++ public:
++     ustring();
+\ No newline at end of file
 diff --git a/ext_poppler/CMakeLists.txt b/ext_poppler/CMakeLists.txt
 index 22d6d84..ad67b64 100644
 --- a/ext_poppler/CMakeLists.txt
@@ -146,92 +179,78 @@ index 22d6d84..ad67b64 100644
  
  	INSTALL_DIR ${EXTPREFIX}
  	CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${EXTPREFIX} -DCMAKE_BUILD_TYPE=${GLOBAL_BUILD_TYPE} ${GLOBAL_PROFILE} -DBUILD_GTK_TESTS=OFF -DBUILD_QT5_TESTS=FALSE -DBUILD_CPP_TESTS=FALSE  -DENABLE_UTILS=FALSE -DENABLE_GLIB=FALSE -DENABLE_LIBOPENJPEG=none -DWITH_NSS3=OFF -DBUILD_MANUAL_TESTS=OFF
-diff --git a/latest/krita-deps.yml b/latest/krita-deps.yml
-index 705e9e3..1c0a3c2 100644
---- a/latest/krita-deps.yml
-+++ b/latest/krita-deps.yml
-@@ -3,6 +3,6 @@
-     "base/boost": "master"
-     "base/lcms2": "master"
-     "base/png": "master"
--    "base/nasm": "master"
-+    # "base/nasm": "master"
-     "base/eigen3": "master"
-     "base/expat": "master"
-@@ -30,9 +30,9 @@
-     "base/zug": "master"
-     "base/immer": "master"
-     "base/lager": "master"
--    "base/highway": "master"
-+    # "base/highway": "master"
-     "base/brotli": "master"
--    "base/jpegxl": "master"
-+    #"base/jpegxl": "master"
-     "base/extra_cmake_modules": "master"
-     "base/kconfig": "master"
-     "base/karchive": "master"
-@@ -58,7 +58,7 @@
-     "ffmpeg/libtheora": "master"
-     "ffmpeg/openh264": "master"
-     "ffmpeg/lame": "master"
--    "ffmpeg/ffmpeg": "master"
-+    #"ffmpeg/ffmpeg": "master"
-     "base/mlt": "master"
+diff --git a/ext_pyqt-builder/CMakeLists.txt b/ext_pyqt-builder/CMakeLists.txt
+index 27c3769..e4aa0a5 100644
+--- a/ext_pyqt-builder/CMakeLists.txt
++++ b/ext_pyqt-builder/CMakeLists.txt
+@@ -44,6 +44,8 @@ elseif(WIN32)
+         URL_HASH SHA256=3f7a3a2715947a293a97530a76fd59f1309fcb8e57a5830f45c79fe7249b3998
  
- # libiconv cannot be cross-compiled for Android as of now. It uses
-@@ -129,11 +129,11 @@
- - 'on': ['Windows']
-   'require':
-     "base/patch": "master"
--    "base/strawberryperl": "master"
-+    # "base/strawberryperl": "master"
-     "base/zlib": "master"
-     "base/googleangle": "master"
-     "base/drmingw": "master"
--    "base/icoutils": "master"
-+    # "base/icoutils": "master"
-     "base/dlfcn_win32": "master"
+         PATCH_COMMAND ${PATCH_COMMAND} -p1 -i ${CMAKE_CURRENT_SOURCE_DIR}/0001-Fix-support-for-MinGW-builds.patch
++            COMMAND git init
++            COMMAND git apply --verbose ${CMAKE_CURRENT_SOURCE_DIR}/0002-bundle-arm64-rt-dlls.patch
  
- - 'on': ['Windows', 'MacOS']
-@@ -146,7 +146,7 @@
-     # TODO: check if we actually need that on macOS (required by ki18n)
-     "base/gettext": "master"
-     # TODO: check if we actually need that on macOS (required by Qt and python)
--    "base/openssl": "master"
-+    #"base/openssl": "master"
+         CONFIGURE_COMMAND ""
+         BUILD_COMMAND ""
+diff --git a/ext_python/CMakeLists.txt b/ext_python/CMakeLists.txt
+index 8c78c2f..e0bc761 100644
+--- a/ext_python/CMakeLists.txt
++++ b/ext_python/CMakeLists.txt
+@@ -104,15 +104,15 @@ if (UNIX)
+ elseif(WIN32)
+     ExternalProject_Add( ext_python
+         DOWNLOAD_DIR ${EXTERNALS_DOWNLOAD_DIR}
+-        URL https://www.python.org/ftp/python/3.13.5/python-3.13.5-embed-amd64.zip
+-        URL_MD5 370a345dbea8bbc1830a2385f24632d2
++        URL "<python-3.10-embed-arm64.zip here>"
++        # URL_MD5 370a345dbea8bbc1830a2385f24632d2
  
- - 'on': ['Linux', 'MacOS']
-   'require':
-diff --git a/ext_png/0001-winarm-fix-case-sensitive.patch b/ext_png/0001-winarm-fix-case-sensitive.patch
+         CONFIGURE_COMMAND ""
+         BUILD_COMMAND ""
+         INSTALL_COMMAND ${CMAKE_COMMAND} -E echo deploying python3 64-bit binary
+                 COMMAND ${CMAKE_COMMAND} -DSRC=<SOURCE_DIR>/ -DDST=${EXTPREFIX}/python -P ${KRITA_CI_INSTALL_DIRECTORY}
+                 COMMAND ${CMAKE_COMMAND} -DSRC=<SOURCE_DIR>/python3.dll -DDST=${EXTPREFIX}/bin -P  ${KRITA_CI_INSTALL}
+-                COMMAND ${CMAKE_COMMAND} -DSRC=<SOURCE_DIR>/python313.dll -DDST=${EXTPREFIX}/bin -P  ${KRITA_CI_INSTALL}
++                COMMAND ${CMAKE_COMMAND} -DSRC=<SOURCE_DIR>/python310.dll -DDST=${EXTPREFIX}/bin -P  ${KRITA_CI_INSTALL}
+                 COMMAND ${CMAKE_COMMAND} -DSRC=<SOURCE_DIR>/vcruntime140.dll -DDST=${EXTPREFIX}/bin -P  ${KRITA_CI_INSTALL}
+                 COMMAND ${CMAKE_COMMAND} -DSRC=<SOURCE_DIR>/vcruntime140_1.dll -DDST=${EXTPREFIX}/bin -P  ${KRITA_CI_INSTALL}
+                 COMMAND ${CMAKE_COMMAND} -DSRC=${CMAKE_CURRENT_SOURCE_DIR}/sitecustomize.py -DDST=${EXTPREFIX}/lib/site-packages/ -P  ${KRITA_CI_INSTALL}
+diff --git a/ext_sip/0001-Fix-version-tuple-w-none.patch b/ext_sip/0001-Fix-version-tuple-w-none.patch
 new file mode 100644
-index 0000000..892c6d3
+index 0000000..2521456
 --- /dev/null
-+++ b/ext_png/0001-winarm-fix-case-sensitive.patch
-@@ -0,0 +1,20 @@
-+diff --git a/CMakeLists.txt b/CMakeLists.txt
-+index deadbeef..00000000 100644
-+--- a/CMakeLists.txt
-++++ b/CMakeLists.txt
-+@@ -90,9 +91,13 @@ if(PNG_HARDWARE_OPTIMIZATIONS)
++++ b/ext_sip/0001-Fix-version-tuple-w-none.patch
+@@ -0,0 +1,15 @@
++diff --git a/sipbuild/bindings.py b/sipbuild/bindings.py
++index 783d21d..7d100d1 100644
++--- a/sipbuild/bindings.py
+++++ b/sipbuild/bindings.py
++@@ -151,7 +151,7 @@ spec, modules, sip_files = parse(self.sip_file, SIP_VERSION, encoding,
++                 project.sip_module)
 + 
-+ # Set definitions and sources for ARM.
-+ if(TARGET_ARCH MATCHES "^arm" OR
-+-   TARGET_ARCH MATCHES "^aarch64")
-++   TARGET_ARCH MATCHES "^aarch64" OR
-++   TARGET_ARCH MATCHES "^ARM" OR
-++   TARGET_ARCH MATCHES "^AARCH64")
-+   if(TARGET_ARCH MATCHES "^arm64" OR
-+-     TARGET_ARCH MATCHES "^aarch64")
-++     TARGET_ARCH MATCHES "^aarch64" OR
-++     TARGET_ARCH MATCHES "^ARM64" OR
-++     TARGET_ARCH MATCHES "^AARCH64")
-+     set(PNG_ARM_NEON_POSSIBLE_VALUES on off)
-+     set(PNG_ARM_NEON "on"
-+         CACHE STRING "Enable ARM NEON optimizations: on|off; on is default")
-\ No newline at end of file
++         # Update the target ABI for the project.
++-        if project.target_abi is None or project.target_abi < spec.target_abi:
+++        if (project.target_abi is None) or (None in project.target_abi) or project.target_abi < spec.target_abi:
++             project.target_abi = spec.target_abi
++ 
++         # Resolve the types.
++--
++
+diff --git a/ext_sip/CMakeLists.txt b/ext_sip/CMakeLists.txt
+index fafc5a4..e52a536 100644
+--- a/ext_sip/CMakeLists.txt
++++ b/ext_sip/CMakeLists.txt
+@@ -48,6 +48,7 @@ elseif (WIN32)
+         URL_HASH SHA256=fa0515697d4c98dbe04d9e898d816de1427e5b9ae5d0e152169109fd21f5d29c
+ 
+         PATCH_COMMAND ${PATCH_COMMAND} -p1 -i ${CMAKE_CURRENT_SOURCE_DIR}/0001-Fix-distinfo.py-to-support-prefix-option-on-Windows-.patch
++            COMMAND ${PATCH_COMMAND} -p1 -i ${CMAKE_CURRENT_SOURCE_DIR}/0001-Fix-version-tuple-w-none.patch
+ 
+         CONFIGURE_COMMAND ""
+         BUILD_COMMAND ""
 diff --git a/ext_vpx/0000-windows-python-workaround.patch b/ext_vpx/0000-windows-python-workaround.patch
 new file mode 100644
-index 0000000..deadbeef
+index 0000000..6c70c17
 --- /dev/null
 +++ b/ext_vpx/0000-windows-python-workaround.patch
 @@ -0,0 +1,52 @@
@@ -288,63 +307,63 @@ index 0000000..deadbeef
 + 	'--name=vpx',
 + 	'--out=@OUTPUT@'
 \ No newline at end of file
-diff --git a/ext_poppler/0000-clang-basic_string.patch b/ext_poppler/0000-clang-basic_string.patch
-new file mode 100644
-index 0000000..deadbeef
---- /dev/null
-+++ b/ext_poppler/0000-clang-basic_string.patch
-@@ -0,0 +1,13 @@
-+diff --git a/cpp/poppler-global.h b/cpp/poppler-global.h
-+index 7d3c890..26a2d00 100644
-+--- a/cpp/poppler-global.h
-++++ b/cpp/poppler-global.h
-+@@ -96,7 +96,7 @@ typedef unsigned int /* time_t */ time_type;
-+ #    pragma warning(push)
-+ #    pragma warning(disable : 4251) /* class 'A' needs to have dll interface for to be used by clients of class 'B'. */
-+ #endif
-+-class POPPLER_CPP_EXPORT ustring : public std::basic_string<unsigned short>
-++class POPPLER_CPP_EXPORT ustring : public std::basic_string<char16_t>
-+ {
-+ public:
-+     ustring();
-\ No newline at end of file
-diff --git a/ext_libaom/0000-non-MSVC-Windows-ARM-build.patch b/ext_libaom/0000-non-MSVC-Windows-ARM-build.patch
-new file mode 100644
-index 0000000..deadbeef
---- /dev/null
-+++ b/ext_libaom/0000-non-MSVC-Windows-ARM-build.patch
-@@ -0,0 +1,33 @@
-+diff --git a/aom_ports/arm_cpudetect.c b/aom_ports/arm_cpudetect.c
-+index 305b22c..775c45d 100644
-+--- a/aom_ports/arm_cpudetect.c
-++++ b/aom_ports/arm_cpudetect.c
-+@@ -56,7 +56,7 @@ int aom_arm_cpu_caps(void) {
-+   return flags & mask;
-+ }
-+
-+-#elif defined(_MSC_VER) /* end !CONFIG_RUNTIME_CPU_DETECT || __APPLE__ */
-++#elif defined(_MSC_VER) || defined(_WIN32) /* end !CONFIG_RUNTIME_CPU_DETECT || __APPLE__ */
-+ /*For GetExceptionCode() and EXCEPTION_ILLEGAL_INSTRUCTION.*/
-+ #undef WIN32_LEAN_AND_MEAN
-+ #define WIN32_LEAN_AND_MEAN
-+@@ -77,13 +77,13 @@ int aom_arm_cpu_caps(void) {
-+  */
-+ #if HAVE_NEON
-+   if (mask & HAS_NEON) {
-+-    __try {
-+-      /*VORR q0,q0,q0*/
-+-      __emit(0xF2200150);
-++    //__try {
-++    //  /*VORR q0,q0,q0*/
-++    //  __emit(0xF2200150);
-+       flags |= HAS_NEON;
-+-    } __except (GetExceptionCode() == EXCEPTION_ILLEGAL_INSTRUCTION) {
-+-      /*Ignore exception.*/
-+-    }
-++    //} __except (GetExceptionCode() == EXCEPTION_ILLEGAL_INSTRUCTION) {
-++    //  /*Ignore exception.*/
-++    //}
-+   }
-+ #endif /* HAVE_NEON */
-+   return flags & mask;
-\ No newline at end of file
+diff --git a/ext_vpx/CMakeLists.txt b/ext_vpx/CMakeLists.txt
+index 47764de..3011a4f 100644
+--- a/ext_vpx/CMakeLists.txt
++++ b/ext_vpx/CMakeLists.txt
+@@ -32,6 +32,7 @@ kis_ExternalProject_Add_with_separate_builds_apple(
+     # I guess it is related to the MSVC support. Since we use clang for
+     # our builds, it should be fine just to ignore this check
+     PATCH_COMMAND ${PATCH_COMMAND} -p1 -i ${CMAKE_CURRENT_SOURCE_DIR}/0001-Allow-shared-libraries-everywhere.patch
++          COMMAND ${PATCH_COMMAND} -p1 -i ${CMAKE_CURRENT_SOURCE_DIR}/0000-windows-python-workaround.patch
+ 
+     CONFIGURE_ARGS --prefix=${EXTPREFIX}
+             -Ddefault_library=shared
+diff --git a/latest/krita-deps.yml b/latest/krita-deps.yml
+index e4cce67..4b18e2c 100644
+--- a/latest/krita-deps.yml
++++ b/latest/krita-deps.yml
+@@ -3,7 +3,7 @@
+     "base/boost": "master"
+     "base/lcms2": "master"
+     "base/png": "master"
+-    "base/nasm": "master"
++    # "base/nasm": "master"
+     "base/eigen3": "master"
+     "base/expat": "master"
+     "base/exiv2": "master"
+@@ -30,9 +30,9 @@
+     "base/zug": "master"
+     "base/immer": "master"
+     "base/lager": "master"
+-    "base/highway": "master"
++    # "base/highway": "master"
+     "base/brotli": "master"
+-    "base/jpegxl": "master"
++    #"base/jpegxl": "master"
+     "base/extra_cmake_modules": "master"
+     "base/kconfig": "master"
+     "base/karchive": "master"
+@@ -138,11 +138,11 @@
+ - 'on': ['Windows']
+   'require':
+     "base/patch": "master"
+-    "base/strawberryperl": "master"
++    # "base/strawberryperl": "master"
+     "base/zlib": "master"
+     "base/googleangle": "master"
+     "base/drmingw": "master"
+-    "base/icoutils": "master"
++    # "base/icoutils": "master"
+     "base/dlfcn_win32": "master"
+ 
+ - 'on': ['Windows', 'MacOS']
+@@ -153,7 +153,7 @@
+     # TODO: check if we actually need that on macOS (required by ki18n)
+     "base/gettext": "master"
+     # TODO: check if we actually need that on macOS (required by Qt and python)
+-    "base/openssl": "master"
++    #"base/openssl": "master"
+ 
+ - 'on': ['Linux', 'MacOS']
+   'require':
