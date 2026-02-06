@@ -120,14 +120,14 @@ w/ Clang18:
         165 - libs-image-kis_image_animation_interface_test (Failed)
         166 - libs-image-kis_walkers_test (Failed)
         167 - libs-image-kis_cage_transform_worker_test (Failed)
-        187 - libs-image-tiles3-kis_tiled_data_manager_test (Failed)
-        188 - libs-image-tiles3-kis_low_memory_tests (Timeout)
-        215 - libs-ui-kis_shape_layer_test (Failed)
+        197 - libs-ui-kis_shape_selection_test (Failed)                 *
         229 - libs-ui-kis_shape_controller_test (SEGFAULT)
         230 - libs-ui-kis_dummies_facade_test (SEGFAULT)
         265 - plugins-dockers-animation-timeline_model_test (Failed)
         271 - plugins-generators-kis_seexpr_generator_test (Failed)
         273 - plugins-impex-kis_kra_saver_test (SEGFAULT)
+        275 - plugins-impex-kis_tiff_test (Failed)                      *
+        291 - plugins-impex-KisHeifTest (SEGFAULT)                      *
         299 - plugins-tooltransform-test_animated_transform_parameters (Failed)
 
 qt5-base has many failed tests by itself, even with x64 build. On Windows on Arm, some tests fail, but not with the debug test exe. Not sure why.
@@ -150,4 +150,6 @@ w/ Clang21
         265 - plugins-dockers-animation-timeline_model_test (Failed)
         271 - plugins-generators-kis_seexpr_generator_test (Failed)
         273 - plugins-impex-kis_kra_saver_test (SEGFAULT)
+        275 - plugins-impex-kis_tiff_test (Failed)                      *
+        291 - plugins-impex-KisHeifTest (SEGFAULT)                      *
         299 - plugins-tooltransform-test_animated_transform_parameters (Failed)
