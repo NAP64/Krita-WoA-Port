@@ -6,7 +6,7 @@ Porting Krita to Windows on Arm64
 
 ## Prepareation
 
-1. Install Visual Studio 2022 v17.14.22. Run following ilnes in this section in a prompt with VS developer environemnt
+1. Install Visual Studio 2022 v17.14.25. Run following ilnes in this section in a prompt with VS developer environemnt
 2. Compile and Install Python 3.10, along with embeded version. collect **python-3.10-embed-arm64.zip**
 
         PCbuild\build.bat -p arm64
@@ -25,7 +25,7 @@ Porting Krita to Windows on Arm64
         nmake test
         nmake install
 
-    Note: msvc /O2 /Gs0 still results in bad assembly as of v17.14.22 and v18.1.0, thus patched
+    Note: msvc /O2 /Gs0 still results in bad assembly as of v17.14.25 and v18.1.0, thus patched
    
 5. git, cmake, ninja, llvm as [link](https://docs.krita.org/en/untranslatable_pages/building_krita.html#prerequisites) says
 
@@ -47,7 +47,7 @@ Apply the patch first:
 
 Run:
 
-        python krita-deps-management\tools\setup-env.py *-d* -v PythonEnv -p <llvm-mingw-path>\bin\ -p <llvm-mingw-path>\aarch64-w64-mingw32\bin\ -p <ninja-path>
+        python krita-deps-management\tools\setup-env.py -d -v PythonEnv -p <llvm-mingw-path>\bin\ -p <llvm-mingw-path>\aarch64-w64-mingw32\bin\ -p <ninja-path>
         base-env.bat
 
 Set your _install dir of choice as KDECI_SHARED_INSTALL_PATH
