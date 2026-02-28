@@ -6,7 +6,7 @@ Porting Krita to Windows on Arm64
 
 ## Prepareation
 
-1. Install Visual Studio 2022 v17.14.25. Run following ilnes in this section in a prompt with VS developer environemnt
+1. Install Visual Studio 2022 v17.14.27. Run following ilnes in this section in a prompt with VS developer environemnt
 2. Compile and Install Python 3.10, along with embeded version. collect **python-3.10-embed-arm64.zip**
 
         PCbuild\build.bat -p arm64
@@ -85,7 +85,12 @@ I'm using these, too (although I'm not sure if they will be used and where).
 
 As of July 2025, llvm 20 and 21 updated ptherad_time.h. I removed mlt's src\win32\win32.c nanosleep function for it to compile (either llvm 20 ships with one or windows has one.)
 
-As of Dec 2025, llvm21 updated include\c++\v1\\__type_traits\is_integral.h. Move the clang-format block (with value = 1 templates) before the __has_builtin(__is_integral) macro if,worked for me.
+As of Dec 2025, llvm 21 updated include\c++\v1\\__type_traits\is_integral.h. Move the clang-format block (with value = 1 templates) before the __has_builtin(__is_integral) macro if,worked for me.
+
+As of Feb 2026, llvm 22 updated include\c++\v1\\__type_traits\is_floating_point.h. 
+In Krita src, libs\global\KisHalfTraits.h, change the line with 
+__libcpp_is_floating_point\<half\>
+to template \<\> inline const bool __is_floating_point_impl\<half\> = true;
 
 ## Compile Krita ##
 
@@ -120,7 +125,7 @@ w/ Clang18:
         165 - libs-image-kis_image_animation_interface_test (Failed)
         166 - libs-image-kis_walkers_test (Failed)
         167 - libs-image-kis_cage_transform_worker_test (Failed)
-        197 - libs-ui-kis_shape_selection_test (Failed)                 *
+        187 - libs-image-tiles3-kis_tiled_data_manager_test (Failed)
         229 - libs-ui-kis_shape_controller_test (SEGFAULT)
         230 - libs-ui-kis_dummies_facade_test (SEGFAULT)
         265 - plugins-dockers-animation-timeline_model_test (Failed)
@@ -132,7 +137,7 @@ w/ Clang18:
 
 qt5-base has many failed tests by itself, even with x64 build. On Windows on Arm, some tests fail, but not with the debug test exe. Not sure why.
 
-w/ Clang21
+w/ Clang22
 
          24 - libs-flake-TestPathTool (Failed)
          47 - libs-flake-TestSvgParser (Failed)
@@ -144,7 +149,6 @@ w/ Clang21
         165 - libs-image-kis_image_animation_interface_test (Failed)
         166 - libs-image-kis_walkers_test (Failed)
         167 - libs-image-kis_cage_transform_worker_test (Failed)
-        187 - libs-image-tiles3-kis_tiled_data_manager_test (Failed)
         229 - libs-ui-kis_shape_controller_test (SEGFAULT)
         230 - libs-ui-kis_dummies_facade_test (SEGFAULT)
         265 - plugins-dockers-animation-timeline_model_test (Failed)
