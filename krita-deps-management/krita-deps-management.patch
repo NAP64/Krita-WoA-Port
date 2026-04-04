@@ -1,66 +1,3 @@
-diff --git a/ext_boost/CMakeLists.txt b/ext_boost/CMakeLists.txt
-index 10ba997..4f01c03 100644
---- a/ext_boost/CMakeLists.txt
-+++ b/ext_boost/CMakeLists.txt
-@@ -13,20 +13,20 @@ if(WIN32)
-         string(REGEX REPLACE "([0-9])\\.([0-9])(\\.[0-9])?" "\\1"
-             KRITA_boost_COMPILER_VERSION ${CMAKE_CXX_COMPILER_VERSION})
- 
--        set (BUILD_ARGS -j${SUBMAKE_JOBS} linkflags="${SECURITY_SHARED_LINKER_FLAGS}" --with-system --build-dir=build-dir toolset=gcc variant=release link=shared threading=multi architecture=x86 address-model=64)
-+        set (BUILD_ARGS -j${SUBMAKE_JOBS} linkflags="${SECURITY_SHARED_LINKER_FLAGS}" --with-system --with-test --debug --build-dir=build-dir toolset=gcc variant=release link=shared threading=multi architecture=arm address-model=64)
- 
-         ExternalProject_Add(
-             ext_boost
- 
-             DOWNLOAD_DIR ${EXTERNALS_DOWNLOAD_DIR}
- 
--            URL https://archives.boost.io/release/1.80.0/source/boost_1_80_0.tar.bz2
--            URL_HASH SHA256=1e19565d82e43bc59209a168f5ac899d3ba471d55c7610c677d4ccf2c9c500c0
-+            URL https://archives.boost.io/release/1.87.0/source/boost_1_87_0.tar.bz2
-+            # URL_HASH SHA256=1e19565d82e43bc59209a168f5ac899d3ba471d55c7610c677d4ccf2c9c500c0
- 
--            PATCH_COMMAND ${PATCH_COMMAND} -p1 -i ${CMAKE_CURRENT_SOURCE_DIR}/0001-Fix-Krita-builds-with-Clang.patch
--                  COMMAND ${PATCH_COMMAND} -p1 -i ${CMAKE_CURRENT_SOURCE_DIR}/0001-Fix-building-Boost.Build-with-a-chosen-toolset.patch
--                  COMMAND ${PATCH_COMMAND} -p1 -i ${CMAKE_CURRENT_SOURCE_DIR}/0001-Fix-compilation-with-clang-15.patch
--                  COMMAND ${PATCH_COMMAND} -p1 -i ${CMAKE_CURRENT_SOURCE_DIR}/0001-mpl-Use-static-const-for-next-prior-from-C-11.patch
-+            # PATCH_COMMAND ${PATCH_COMMAND} -p1 -i ${CMAKE_CURRENT_SOURCE_DIR}/0001-Fix-Krita-builds-with-Clang.patch
-+            #       COMMAND ${PATCH_COMMAND} -p1 -i ${CMAKE_CURRENT_SOURCE_DIR}/0001-Fix-building-Boost.Build-with-a-chosen-toolset.patch
-+            #       COMMAND ${PATCH_COMMAND} -p1 -i ${CMAKE_CURRENT_SOURCE_DIR}/0001-Fix-compilation-with-clang-15.patch
-+            #       COMMAND ${PATCH_COMMAND} -p1 -i ${CMAKE_CURRENT_SOURCE_DIR}/0001-mpl-Use-static-const-for-next-prior-from-C-11.patch
- 
-             CONFIGURE_COMMAND <SOURCE_DIR>/bootstrap.bat gcc --prefix=${EXTPREFIX}
-             BUILD_COMMAND ${CMAKE_COMMAND} -DPREFIX=${EXTPREFIX} -P ${CMAKE_CURRENT_SOURCE_DIR}/run-b2-with-destdir.cmake -- ${BUILD_ARGS}
-@@ -38,7 +38,7 @@ if(WIN32)
-         ExternalProject_Add_Step(
-             ext_boost
-             pre_install
--            COMMAND ${CMAKE_COMMAND} -DSRC=<SOURCE_DIR>/build-dir/boost/bin.v2/libs/system/build/gcc-${KRITA_boost_COMPILER_VERSION}/release/threading-multi/visibility-hidden/libboost_system-mgw${KRITA_boost_COMPILER_VERSION}-mt-x64-1_80.dll -DDST=${EXTPREFIX}/bin -P ${KRITA_CI_INSTALL}
-+            COMMAND ${CMAKE_COMMAND} -DSRC=<SOURCE_DIR>/build-dir/boost/bin.v2/libs/system/build/gcc-${KRITA_boost_COMPILER_VERSION}/release/arm_64/threadapi-win32/threading-multi/visibility-hidden/libboost_system-mgw${KRITA_boost_COMPILER_VERSION}-mt-a64-1_87.dll -DDST=${EXTPREFIX}/bin -P ${KRITA_CI_INSTALL}
-             DEPENDERS install
-         )
-         if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-@@ -73,8 +73,8 @@ if(WIN32)
-             ext_boost
-             DOWNLOAD_DIR ${EXTERNALS_DOWNLOAD_DIR}
- 
--            URL https://archives.boost.io/release/1.80.0/source/boost_1_80_0.tar.bz2
--            URL_HASH SHA256=1e19565d82e43bc59209a168f5ac899d3ba471d55c7610c677d4ccf2c9c500c0
-+            URL https://archives.boost.io/release/1.87.0/source/boost_1_87_0.tar.bz2
-+            # URL_HASH SHA256=1e19565d82e43bc59209a168f5ac899d3ba471d55c7610c677d4ccf2c9c500c0
- 
-             CONFIGURE_COMMAND <SOURCE_DIR>/bootstrap.bat msvc --prefix=${EXTPREFIX}
-             BUILD_COMMAND ${CMAKE_COMMAND} -DPREFIX=${EXTPREFIX} -P ${CMAKE_CURRENT_SOURCE_DIR}/run-b2-with-destdir.cmake -- ${BUILD_ARGS}
-@@ -134,8 +134,8 @@ else()
-     endif()
-     ExternalProject_Add( ext_boost
-         DOWNLOAD_DIR ${EXTERNALS_DOWNLOAD_DIR}
--        URL https://archives.boost.io/release/1.80.0/source/boost_1_80_0.tar.bz2
--        URL_HASH SHA256=1e19565d82e43bc59209a168f5ac899d3ba471d55c7610c677d4ccf2c9c500c0
-+        URL https://archives.boost.io/release/1.87.0/source/boost_1_87_0.tar.bz2
-+        # URL_HASH SHA256=1e19565d82e43bc59209a168f5ac899d3ba471d55c7610c677d4ccf2c9c500c0
- 
-         PATCH_COMMAND ${PATCH_COMMAND} -p1 -i ${CMAKE_CURRENT_SOURCE_DIR}/0001-Fix-compilation-with-clang-15.patch
-               COMMAND ${PATCH_COMMAND} -p1 -i ${CMAKE_CURRENT_SOURCE_DIR}/0001-mpl-Use-static-const-for-next-prior-from-C-11.patch
 diff --git a/ext_brotli/CMakeLists.txt b/ext_brotli/CMakeLists.txt
 index 64dbe95..7f7af60 100644
 --- a/ext_brotli/CMakeLists.txt
@@ -95,38 +32,6 @@ index e0504de..50857c1 100644
          -DCMAKE_PREFIX_PATH=${EXTPREFIX}
          ${GLOBAL_PROFILE}
  
-diff --git a/ext_poppler/0000-clang-basic_string.patch b/ext_poppler/0000-clang-basic_string.patch
-new file mode 100644
-index 0000000..dca88a2
---- /dev/null
-+++ b/ext_poppler/0000-clang-basic_string.patch
-@@ -0,0 +1,13 @@
-+diff --git a/cpp/poppler-global.h b/cpp/poppler-global.h
-+index 7d3c890..26a2d00 100644
-+--- a/cpp/poppler-global.h
-++++ b/cpp/poppler-global.h
-+@@ -96,7 +96,7 @@ typedef unsigned int /* time_t */ time_type;
-+ #    pragma warning(push)
-+ #    pragma warning(disable : 4251) /* class 'A' needs to have dll interface for to be used by clients of class 'B'. */
-+ #endif
-+-class POPPLER_CPP_EXPORT ustring : public std::basic_string<unsigned short>
-++class POPPLER_CPP_EXPORT ustring : public std::basic_string<char16_t>
-+ {
-+ public:
-+     ustring();
-\ No newline at end of file
-diff --git a/ext_poppler/CMakeLists.txt b/ext_poppler/CMakeLists.txt
-index 22d6d84..ad67b64 100644
---- a/ext_poppler/CMakeLists.txt
-+++ b/ext_poppler/CMakeLists.txt
-@@ -13,6 +13,7 @@ ExternalProject_Add( ext_poppler
- 
-     PATCH_COMMAND ${PATCH_COMMAND} -p1 -i ${CMAKE_CURRENT_SOURCE_DIR}/0001-fix_sed_invocation.patch
-             COMMAND ${PATCH_COMMAND} -p1 -i ${CMAKE_CURRENT_SOURCE_DIR}/0001-macos-add-missing-system-header.patch
-+            COMMAND ${PATCH_COMMAND} -p1 -i ${CMAKE_CURRENT_SOURCE_DIR}/0000-clang-basic_string.patch
- 
- 	INSTALL_DIR ${EXTPREFIX}
- 	CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${EXTPREFIX} -DCMAKE_BUILD_TYPE=${GLOBAL_BUILD_TYPE} ${GLOBAL_PROFILE} -DBUILD_GTK_TESTS=OFF -DBUILD_QT5_TESTS=FALSE -DBUILD_CPP_TESTS=FALSE  -DENABLE_UTILS=FALSE -DENABLE_GLIB=FALSE -DENABLE_LIBOPENJPEG=none -DWITH_NSS3=OFF -DBUILD_MANUAL_TESTS=OFF
 diff --git a/ext_pyqt-builder/CMakeLists.txt b/ext_pyqt-builder/CMakeLists.txt
 index 27c3769..e4aa0a5 100644
 --- a/ext_pyqt-builder/CMakeLists.txt
@@ -144,25 +49,17 @@ diff --git a/ext_python/CMakeLists.txt b/ext_python/CMakeLists.txt
 index 8c78c2f..e0bc761 100644
 --- a/ext_python/CMakeLists.txt
 +++ b/ext_python/CMakeLists.txt
-@@ -104,15 +104,15 @@ if (UNIX)
+@@ -104,8 +104,8 @@ if (UNIX)
  elseif(WIN32)
      ExternalProject_Add( ext_python
          DOWNLOAD_DIR ${EXTERNALS_DOWNLOAD_DIR}
 -        URL https://www.python.org/ftp/python/3.13.5/python-3.13.5-embed-amd64.zip
 -        URL_MD5 370a345dbea8bbc1830a2385f24632d2
-+        URL "<python-3.10-embed-arm64.zip here>"
++        URL https://www.python.org/ftp/python/3.13.12/python-3.13.12-embed-arm64.zip
 +        # URL_MD5 370a345dbea8bbc1830a2385f24632d2
  
          CONFIGURE_COMMAND ""
          BUILD_COMMAND ""
-         INSTALL_COMMAND ${CMAKE_COMMAND} -E echo deploying python3 64-bit binary
-                 COMMAND ${CMAKE_COMMAND} -DSRC=<SOURCE_DIR>/ -DDST=${EXTPREFIX}/python -P ${KRITA_CI_INSTALL_DIRECTORY}
-                 COMMAND ${CMAKE_COMMAND} -DSRC=<SOURCE_DIR>/python3.dll -DDST=${EXTPREFIX}/bin -P  ${KRITA_CI_INSTALL}
--                COMMAND ${CMAKE_COMMAND} -DSRC=<SOURCE_DIR>/python313.dll -DDST=${EXTPREFIX}/bin -P  ${KRITA_CI_INSTALL}
-+                COMMAND ${CMAKE_COMMAND} -DSRC=<SOURCE_DIR>/python310.dll -DDST=${EXTPREFIX}/bin -P  ${KRITA_CI_INSTALL}
-                 COMMAND ${CMAKE_COMMAND} -DSRC=<SOURCE_DIR>/vcruntime140.dll -DDST=${EXTPREFIX}/bin -P  ${KRITA_CI_INSTALL}
-                 COMMAND ${CMAKE_COMMAND} -DSRC=<SOURCE_DIR>/vcruntime140_1.dll -DDST=${EXTPREFIX}/bin -P  ${KRITA_CI_INSTALL}
-                 COMMAND ${CMAKE_COMMAND} -DSRC=${CMAKE_CURRENT_SOURCE_DIR}/sitecustomize.py -DDST=${EXTPREFIX}/lib/site-packages/ -P  ${KRITA_CI_INSTALL}
 diff --git a/ext_sip/0001-Fix-version-tuple-w-none.patch b/ext_sip/0001-Fix-version-tuple-w-none.patch
 new file mode 100644
 index 0000000..2521456

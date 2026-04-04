@@ -6,12 +6,9 @@ Porting Krita to Windows on Arm64
 
 ## Prepareation
 
-1. Install Visual Studio 2022 v17.14.27. Run following ilnes in this section in a prompt with VS developer environemnt
-2. Compile and Install Python 3.10, along with embeded version. collect **python-3.10-embed-arm64.zip**
-
-        PCbuild\build.bat -p arm64
-        python.bat PC\layout -b PCbuild\arm64 -s . -t PCbuild\obj\310arm64_Release\msi_python\zip_arm64 --zip python-3.10-embed-arm64.zip --precompile --zip-lib --include-underpth --include-stable --flat-dlls
-        python.bat PC\layout --precompile --preset-default --copy \<python install path\>
+1. Install Visual Studio 2022 v17.14.29. 
+2. Get standalone (or install) python3.13:
+    https://www.python.org/ftp/python/3.13.12/python-3.13.12-arm64.zip
 
 3. Install StrawberryPerl (I couldn't find an Arm64 alternative, x64 should be fine tho)
 
@@ -31,15 +28,18 @@ Porting Krita to Windows on Arm64
 
     *You may want to use newer cmake to avoid putting cmake_policy(SET CMP0074 NEW) everywhere (I have omitted them)*
 
-6. Download and install ccache. I have a directory with ninja and ccache executables added to path .
 7. Keep following the website and activate PythonEnv and install the other python requirements
+
+(Looks like OpenSSL is the only item left in this section)
 
 
 ## Krita-deps-management
 
 *This will be a wild ride since I've never used CI before. lmk if there are better practise.*
 
-Apply the patch first: 
+**git checkout transition.now/win-clang21**
+
+After checking out the transition tag, apply the patch first: 
 
         git apply <path to this repo>\krita-deps-management\krita-deps-management.patch
         git config --local core.autocrlf input
@@ -83,14 +83,7 @@ Take the openssl dlls from the openssl step above,
 and pyqt-builder has arm64 msvc dlls in their newer versions (i.e. 1.19.1).
 I'm using these, too (although I'm not sure if they will be used and where).
 
-As of July 2025, llvm 20 and 21 updated ptherad_time.h. I removed mlt's src\win32\win32.c nanosleep function for it to compile (either llvm 20 ships with one or windows has one.)
-
-As of Dec 2025, llvm 21 updated include\c++\v1\\__type_traits\is_integral.h. Move the clang-format block (with value = 1 templates) before the __has_builtin(__is_integral) macro if,worked for me.
-
-As of Feb 2026, llvm 22 updated include\c++\v1\\__type_traits\is_floating_point.h. 
-In Krita src, libs\global\KisHalfTraits.h, change the line with 
-__libcpp_is_floating_point\<half\>
-to template \<\> inline const bool __is_floating_point_impl\<half\> = true;
+As of Dec 2025, llvm 21 updated include\c++\v1\\__type_traits\is_integral.h. Move the clang-format block (with value = 1 templates) before the __has_builtin(__is_integral) macro if, worked for me (For 5.3.1, not sure if still needed).
 
 ## Compile Krita ##
 
@@ -113,47 +106,23 @@ Run the following, a zip with your name of choice will be created:
 
 ## Testing ##
 
-w/ Clang18:
-
-         24 - libs-flake-TestPathTool (Failed)
-         47 - libs-flake-TestSvgParser (Failed)
-         48 - libs-flake-TestSvgParserCloned (Failed)
-         49 - libs-flake-TestSvgParserRoundTrip (Failed)
-         51 - libs-pigment-TestKoColorSet (ILLEGAL)
-         68 - libs-brush-kis_auto_brush_test (Failed)
-        163 - libs-image-kis_onion_skin_compositor_test (Failed)
-        165 - libs-image-kis_image_animation_interface_test (Failed)
-        166 - libs-image-kis_walkers_test (Failed)
-        167 - libs-image-kis_cage_transform_worker_test (Failed)
-        187 - libs-image-tiles3-kis_tiled_data_manager_test (Failed)
-        229 - libs-ui-kis_shape_controller_test (SEGFAULT)
-        230 - libs-ui-kis_dummies_facade_test (SEGFAULT)
-        265 - plugins-dockers-animation-timeline_model_test (Failed)
-        271 - plugins-generators-kis_seexpr_generator_test (Failed)
-        273 - plugins-impex-kis_kra_saver_test (SEGFAULT)
-        275 - plugins-impex-kis_tiff_test (Failed)                      *
-        291 - plugins-impex-KisHeifTest (SEGFAULT)                      *
-        299 - plugins-tooltransform-test_animated_transform_parameters (Failed)
-
-qt5-base has many failed tests by itself, even with x64 build. On Windows on Arm, some tests fail, but not with the debug test exe. Not sure why.
-
 w/ Clang22
 
-         24 - libs-flake-TestPathTool (Failed)
-         47 - libs-flake-TestSvgParser (Failed)
-         48 - libs-flake-TestSvgParserCloned (Failed)
-         49 - libs-flake-TestSvgParserRoundTrip (Failed)
-         51 - libs-pigment-TestKoColorSet (ILLEGAL)
-         68 - libs-brush-kis_auto_brush_test (Failed)
-        163 - libs-image-kis_onion_skin_compositor_test (Failed)
-        165 - libs-image-kis_image_animation_interface_test (Failed)
-        166 - libs-image-kis_walkers_test (Failed)
-        167 - libs-image-kis_cage_transform_worker_test (Failed)
-        229 - libs-ui-kis_shape_controller_test (SEGFAULT)
-        230 - libs-ui-kis_dummies_facade_test (SEGFAULT)
-        265 - plugins-dockers-animation-timeline_model_test (Failed)
-        271 - plugins-generators-kis_seexpr_generator_test (Failed)
-        273 - plugins-impex-kis_kra_saver_test (SEGFAULT)
-        275 - plugins-impex-kis_tiff_test (Failed)                      *
-        291 - plugins-impex-KisHeifTest (SEGFAULT)                      *
-        299 - plugins-tooltransform-test_animated_transform_parameters (Failed)
+         51 - libs-flake-TestSvgParser (Failed)                                 *
+         52 - libs-flake-TestSvgParserCloned (Failed)                           *
+         53 - libs-flake-TestSvgParserRoundTrip (Failed)
+         73 - libs-brush-kis_auto_brush_test (Failed)
+        155 - libs-image-kis_algebra_2d_test (Failed)                           *
+        173 - libs-image-kis_cage_transform_worker_test (Failed)
+        198 - libs-image-tiles3-kis_tiled_data_manager_test (Failed)            *
+        225 - libs-ui-kis_shape_layer_test (Failed)
+        253 - libs-resources-TestResourceStorage (Failed)
+        282 - plugins-generators-seexpr-kis_seexpr_generator_test (Failed)      *
+        286 - plugins-impex-tiff-kis_tiff_test (Failed)
+        302 - plugins-impex-heif-KisHeifTest (SEGFAULT)
+
+(*labels delta from a x86-64 build)
+
+We knew about 51, 52, and 282, I'll look into the other 2 soon.
+
+Should I do Qt6 as well?
