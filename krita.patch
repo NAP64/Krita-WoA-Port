@@ -1,18 +1,3 @@
-diff --git a/cmake/modules/xsimd/xsimdMacros.cmake b/cmake/modules/xsimd/xsimdMacros.cmake
-index ae50d8720d..055524730e 100644
---- a/cmake/modules/xsimd/xsimdMacros.cmake
-+++ b/cmake/modules/xsimd/xsimdMacros.cmake
-@@ -140,7 +140,9 @@ macro(xsimd_set_preferred_compiler_flags)
-    xsimd_determine_compiler()
- 
-    if (NOT xsimd_COMPILER_IS_MSVC AND NOT MSVC_VERSION)
--      xsimd_check_assembler()
-+      if (NOT WIN32 AND NOT xsimd_COMPILER_IS_CLANG)
-+         xsimd_check_assembler()
-+      endif()
-    endif()
- 
-    if(xsimd_COMPILER_IS_GCC)
 diff --git a/packaging/windows/package-complete.py b/packaging/windows/package-complete.py
 index c87b490772..ac64ffe341 100644
 --- a/packaging/windows/package-complete.py

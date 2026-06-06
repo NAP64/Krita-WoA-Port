@@ -55,7 +55,7 @@ index 8c78c2f..e0bc761 100644
          DOWNLOAD_DIR ${EXTERNALS_DOWNLOAD_DIR}
 -        URL https://www.python.org/ftp/python/3.13.5/python-3.13.5-embed-amd64.zip
 -        URL_MD5 370a345dbea8bbc1830a2385f24632d2
-+        URL https://www.python.org/ftp/python/3.13.12/python-3.13.12-embed-arm64.zip
++        URL https://www.python.org/ftp/python/3.13.13/python-3.13.13-embed-arm64.zip
 +        # URL_MD5 370a345dbea8bbc1830a2385f24632d2
  
          CONFIGURE_COMMAND ""

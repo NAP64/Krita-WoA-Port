@@ -6,9 +6,9 @@ Porting Krita to Windows on Arm64
 
 ## Prepareation
 
-1. Install Visual Studio 2022 v17.14.29. 
+1. Install Visual Studio 2022 v17.14.33. 
 2. Get standalone (or install) python3.13:
-    https://www.python.org/ftp/python/3.13.12/python-3.13.12-arm64.zip
+    https://www.python.org/ftp/python/3.13.13/python-3.13.13-arm64.zip
 
 3. Install StrawberryPerl (I couldn't find an Arm64 alternative, x64 should be fine tho)
 
@@ -22,7 +22,7 @@ Porting Krita to Windows on Arm64
         nmake test
         nmake install
 
-    Note: msvc /O2 /Gs0 still results in bad assembly as of v17.14.25 and v18.1.0, thus patched
+    Note: msvc /O2 /Gs0 still results in bad assembly as of v17.14.33 and v18.6.2, thus patched
    
 5. git, cmake, ninja, llvm as [link](https://docs.krita.org/en/untranslatable_pages/building_krita.html#prerequisites) says
 
@@ -56,8 +56,6 @@ Set environment vars for QT: LLVM_INSTALL_DIR
 
 Set PATH to add llvm\bin, llvm\aarch64-w64-mingw32\bin\, straberryperl\perl\site\bin, straberryperl\perl\bin, ninja, and ccache.
 
-Replace line 107 in krita-deps-management\ext_python\CMakeLists.txt to point to the python-3.10-embed-arm64.zip  when you compile python (change the direction of slashes).
-
 Run the command to run all builds: 
 
         python -u ci-utilities/seed-package-registry.py --seed-file latest/krita-deps.yml --platform Windows/Qt5/Shared --skip-dependencies-fetch
@@ -83,7 +81,7 @@ Take the openssl dlls from the openssl step above,
 and pyqt-builder has arm64 msvc dlls in their newer versions (i.e. 1.19.1).
 I'm using these, too (although I'm not sure if they will be used and where).
 
-As of Dec 2025, llvm 21 updated include\c++\v1\\__type_traits\is_integral.h. Move the clang-format block (with value = 1 templates) before the __has_builtin(__is_integral) macro if, worked for me (For 5.3.1, not sure if still needed).
+You can replace them in _install\lib\site-packages\pyqtbuild\bundle\dlls after kdm compile finishes;
 
 ## Compile Krita ##
 
@@ -108,21 +106,26 @@ Run the following, a zip with your name of choice will be created:
 
 w/ Clang22
 
-         51 - libs-flake-TestSvgParser (Failed)                                 *
-         52 - libs-flake-TestSvgParserCloned (Failed)                           *
-         53 - libs-flake-TestSvgParserRoundTrip (Failed)
-         73 - libs-brush-kis_auto_brush_test (Failed)
-        155 - libs-image-kis_algebra_2d_test (Failed)                           *
-        173 - libs-image-kis_cage_transform_worker_test (Failed)
-        198 - libs-image-tiles3-kis_tiled_data_manager_test (Failed)            *
+         52 - libs-flake-TestSvgParser (Failed)                                 *
+         53 - libs-flake-TestSvgParserCloned (Failed)                           *
+         54 - libs-flake-TestSvgParserRoundTrip (Failed)
+         74 - libs-brush-kis_auto_brush_test (Failed)
+        156 - libs-image-kis_algebra_2d_test (Failed)                           *
+        174 - libs-image-kis_cage_transform_worker_test (Failed)
+        179 - libs-image-kis_asl_layer_style_serializer_test (Failed)           *
+        199 - libs-image-tiles3-kis_low_memory_tests (Timeout)            should be fine
         225 - libs-ui-kis_shape_layer_test (Failed)
         253 - libs-resources-TestResourceStorage (Failed)
         282 - plugins-generators-seexpr-kis_seexpr_generator_test (Failed)      *
         286 - plugins-impex-tiff-kis_tiff_test (Failed)
         302 - plugins-impex-heif-KisHeifTest (SEGFAULT)
 
-(*labels delta from a x86-64 build)
+(*labels delta from a x86-64 build, afaik)
 
-We knew about 51, 52, and 282, I'll look into the other 2 soon.
+We knew about 52, 53, and 282
+
+156 has something to do with Eigen, where a matrix inversion introduced too much error.
+
+I'll look into the new one soon.
 
 Should I do Qt6 as well?
