@@ -2,20 +2,20 @@ diff --git a/packaging/windows/package-complete.py b/packaging/windows/package-c
 index c87b490772..ac64ffe341 100644
 --- a/packaging/windows/package-complete.py
 +++ b/packaging/windows/package-complete.py
-@@ -298,7 +298,11 @@ for archLine in targetArchLines:
+@@ -320,7 +320,11 @@ for archLine in targetArchLines:
              TARGET_ARCH_LINE = archLine
- print(f"-- {TARGET_ARCH_LINE}")
+ logger.info(f"-- {TARGET_ARCH_LINE}")
  IS_x64 = False
 -if not re.search("x86-64", TARGET_ARCH_LINE):
 +IS_arm64 = False
 +if re.search("arm64", TARGET_ARCH_LINE):
-+    print("Target looks like arm64")
++    logger.info("Target looks like arm64")
 +    IS_arm64 = True
 +elif not re.search("x86-64", TARGET_ARCH_LINE):
-     print("Target looks like x86")
+     logger.info("Target looks like x86")
  else:
-     print("Target looks like x86_64")
-@@ -343,14 +347,20 @@ if IS_TDM:
+     logger.info("Target looks like x86_64")
+@@ -377,14 +381,20 @@ if IS_TDM:
  		# TDM-GCC x64
          os.environ['STDLIBS'] = "libgomp_64-1"
  elif IS_MSYS:
@@ -38,7 +38,7 @@ index c87b490772..ac64ffe341 100644
  		# msys-mingw-w64-clang64 x86
          os.environ['STDLIBS'] = "libomp libssp-0 libunwind libc++ libwinpthread-1 libiconv-2 zlib1 libexpat-1 libintl-8 libssl-1_1 libcrypto-1_1"
      else:
-@@ -359,9 +369,12 @@ elif IS_MSYS_CLANG:
+@@ -393,9 +403,12 @@ elif IS_MSYS_CLANG:
  elif IS_LLVM_MINGW:
      # llvm-mingw
      os.environ['STDLIBS'] = "libc++ libomp libssp-0 libunwind libwinpthread-1"

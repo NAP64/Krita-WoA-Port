@@ -1,0 +1,26 @@
+diff --git a/components/CommonUtils.py b/components/CommonUtils.py
+index 0de32f3..508df7b 100644
+--- a/components/CommonUtils.py
++++ b/components/CommonUtils.py
+@@ -112,7 +112,7 @@ def recursiveUpdate(d, u):
+     return d
+ 
+ def detectObjdump():
+-    for arg in ("objdump", "llvm-objdump"):
++    for arg in ("llvm-objdump", "objdump"):
+         commandToRun = f"{arg} --version"
+         ret = subprocess.call(commandToRun, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, shell=True)
+         if ret != 1:
+diff --git a/split-debug-info.py b/split-debug-info.py
+index 7d1146d..7b59bbf 100644
+--- a/split-debug-info.py
++++ b/split-debug-info.py
+@@ -48,7 +48,7 @@ def split_debug(rootDir, relativeFileName, logger, objdumpBinary):
+     if not os.path.isdir(debugDir):
+         os.mkdir(debugDir)
+ 
+-    shutil.move(f"{fileName}.debug", debugDir + os.path.sep)
++    shutil.move(f"{fileName}.debug", debugDir + os.path.sep + os.path.basename(fileName) + ".debug")
+ 
+     commandToRun = ["strip", "--strip-debug", fileName]
+     logger.debug(f"Running {' '.join(commandToRun)}")

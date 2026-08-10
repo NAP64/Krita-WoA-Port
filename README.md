@@ -6,9 +6,9 @@ Porting Krita to Windows on Arm64
 
 ## Prepareation
 
-1. Install Visual Studio 2022 v17.14.33. 
+1. Install Visual Studio 2022 v17.14.37. 
 2. Get standalone (or install) python3.13:
-    https://www.python.org/ftp/python/3.13.13/python-3.13.13-arm64.zip
+    https://www.python.org/ftp/python/3.13.14/python-3.13.14-arm64.zip
 
 3. Install StrawberryPerl (I couldn't find an Arm64 alternative, x64 should be fine tho)
 
@@ -22,11 +22,13 @@ Porting Krita to Windows on Arm64
         nmake test
         nmake install
 
-    Note: msvc /O2 /Gs0 still results in bad assembly as of v17.14.33 and v18.6.2, thus patched
+    Note: msvc /O2 /Gs0 still results in bad assembly as of v17.14.37 and v18.8.2, thus patched
    
 5. git, cmake, ninja, llvm as [link](https://docs.krita.org/en/untranslatable_pages/building_krita.html#prerequisites) says
 
     *You may want to use newer cmake to avoid putting cmake_policy(SET CMP0074 NEW) everywhere (I have omitted them)*
+
+6. Apply this cmake patch if you are using cmake version close but lower than 4.4.3: [link](https://gitlab.kitware.com/cmake/cmake/-/commit/7fc60e733dcb6cd0b7e5fa8377a74cbfa7b2bf1f)
 
 7. Keep following the website and activate PythonEnv and install the other python requirements
 
@@ -44,6 +46,10 @@ After checking out the transition tag, apply the patch first:
         git apply <path to this repo>\krita-deps-management\krita-deps-management.patch
         git config --local core.autocrlf input
         git apply <path to this repo>\krita-deps-management\pyqt-builder.patch.lf
+
+And for ci-utilities:
+
+        git apply <path to this repo>\krita-deps-management\ci-utilities.patch
 
 Run:
 
@@ -109,20 +115,20 @@ w/ Clang22
          52 - libs-flake-TestSvgParser (Failed)                                 *
          53 - libs-flake-TestSvgParserCloned (Failed)                           *
          54 - libs-flake-TestSvgParserRoundTrip (Failed)
-         74 - libs-brush-kis_auto_brush_test (Failed)
+         59 - libs-pigment-TestKoColorSpaceAbstract (Failed)                    *
         156 - libs-image-kis_algebra_2d_test (Failed)                           *
         174 - libs-image-kis_cage_transform_worker_test (Failed)
-        179 - libs-image-kis_asl_layer_style_serializer_test (Failed)           *
-        199 - libs-image-tiles3-kis_low_memory_tests (Timeout)            should be fine
         225 - libs-ui-kis_shape_layer_test (Failed)
-        253 - libs-resources-TestResourceStorage (Failed)
-        282 - plugins-generators-seexpr-kis_seexpr_generator_test (Failed)      *
-        286 - plugins-impex-tiff-kis_tiff_test (Failed)
-        302 - plugins-impex-heif-KisHeifTest (SEGFAULT)
+        242 - libs-ui-kis_view_signals_test (SEGFAULT)                          *
+        254 - libs-resources-TestResourceStorage (Failed)
+        283 - plugins-generators-seexpr-kis_seexpr_generator_test (Failed)      *
+        286 - plugins-impex-jpeg-kis_jpeg_test (Exit code 0xc00000ff)           !!!
+        287 - plugins-impex-tiff-kis_tiff_test (Failed)
+        303 - plugins-impex-heif-KisHeifTest (Failed)
 
 (*labels delta from a x86-64 build, afaik)
 
-We knew about 52, 53, and 282
+We knew about 52, 53, and 283
 
 156 has something to do with Eigen, where a matrix inversion introduced too much error.
 

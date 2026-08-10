@@ -1,8 +1,20 @@
-diff --git a/ext_brotli/CMakeLists.txt b/ext_brotli/CMakeLists.txt
-index 64dbe95..7f7af60 100644
+diff --git a/cmake/fix-python-install-scheme.cmake b/cmake/fix-python-install-scheme.cmake
+index 4de85a7..960e298 100644
+--- a/cmake/fix-python-install-scheme.cmake
++++ b/cmake/fix-python-install-scheme.cmake
+@@ -11,7 +11,7 @@
+ #
+ 
+ # for IN_LIST to be available
+-cmake_minimum_required(VERSION 3.3)
++cmake_minimum_required(VERSION 3.5)
+ 
+ if (DEFINED ENV{DESTDIR})
+     set(DESTDIR $ENV{DESTDIR})diff --git a/ext_brotli/CMakeLists.txt b/ext_brotli/CMakeLists.txt
+index 9555634..9106951 100644
 --- a/ext_brotli/CMakeLists.txt
 +++ b/ext_brotli/CMakeLists.txt
-@@ -13,7 +13,7 @@ if (MINGW)
+@@ -10,7 +10,7 @@ if (MINGW)
      check_cxx_compiler_flag("-mavx512f" CAN_TARGET_AVX512F)
      if (NOT CAN_BUILD_HIGHWAY OR NOT CAN_TARGET_AVX512F)
          message(WARNING "Skipping libjxl, compiler cannot build highway.")
@@ -11,32 +23,58 @@ index 64dbe95..7f7af60 100644
      endif()
  endif()
  
-diff --git a/ext_freetype/CMakeLists.txt b/ext_freetype/CMakeLists.txt
-index e0504de..50857c1 100644
---- a/ext_freetype/CMakeLists.txt
-+++ b/ext_freetype/CMakeLists.txt
-@@ -58,7 +58,7 @@ kis_ExternalProject_Add_with_separate_builds_apple(
-     CONFIGURE_ARGS --prefix=${BOOTSTRAP_PREFIX}
-         -Dglib=disabled
-         -Dgobject=disabled
--        -Dtests=disabled
-+        -Dtests=enabled
-         -Dfreetype=enabled
-         -Dpkgconfig.relocatable=true
-         --pkg-config-path ${_mesonified_pkg_config_path}
-@@ -84,6 +84,7 @@ ExternalProject_Add( ext_freetype
-         -DFT_REQUIRE_HARFBUZZ=ON
-         -DFT_REQUIRE_PNG=ON
+diff --git a/ext_highway/CMakeLists.txt b/ext_highway/CMakeLists.txt
+index 1c6907a..a068735 100644
+--- a/ext_highway/CMakeLists.txt
++++ b/ext_highway/CMakeLists.txt
+@@ -10,7 +10,7 @@ if (MINGW)
+     check_cxx_compiler_flag("-mavx512f" CAN_TARGET_AVX512F)
+     if (NOT CAN_BUILD_HIGHWAY OR NOT CAN_TARGET_AVX512F)
+         message(WARNING "Skipping libjxl, compiler cannot build highway.")
+-        return()
++        #return()
+     endif()
+ endif()
+ 
+@@ -21,7 +21,7 @@ ExternalProject_Add( ext_highway
+     URL_HASH SHA256=07b3c1ba2c1096878a85a31a5b9b3757427af963b1141ca904db2f9f4afe0bc2
+ 
+     INSTALL_DIR ${EXTPREFIX}
+-    CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${EXTPREFIX} DCMAKE_BUILD_TYPE=${GLOBAL_BUILD_TYPE} -DBUILD_TESTING=OFF -DBUILD_STATIC_LIBS=ON -DBUILD_SHARED_LIBS=OFF ${GLOBAL_PROFILE} 
++    CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${EXTPREFIX} DCMAKE_BUILD_TYPE=${GLOBAL_BUILD_TYPE} -DBUILD_TESTING=ON -DBUILD_STATIC_LIBS=ON -DBUILD_SHARED_LIBS=OFF ${GLOBAL_PROFILE} 
+ 
+     UPDATE_COMMAND ""
+ )
+diff --git a/ext_jpegxl/CMakeLists.txt b/ext_jpegxl/CMakeLists.txt
+index a7ad044..a7b0855 100644
+--- a/ext_jpegxl/CMakeLists.txt
++++ b/ext_jpegxl/CMakeLists.txt
+@@ -10,7 +10,7 @@ if (MINGW)
+     check_cxx_compiler_flag("-mavx512f" CAN_TARGET_AVX512F)
+     if (NOT CAN_BUILD_HIGHWAY OR NOT CAN_TARGET_AVX512F)
+         message(WARNING "Skipping libjxl, compiler cannot build highway.")
+-        return()
++        #return()
+     endif()
+ endif()
+ 
+diff --git a/ext_opus/CMakeLists.txt b/ext_opus/CMakeLists.txt
+index ebecdf8..1968fc8 100644
+--- a/ext_opus/CMakeLists.txt
++++ b/ext_opus/CMakeLists.txt
+@@ -15,6 +15,7 @@ ExternalProject_Add(
+         -DCMAKE_BUILD_TYPE=${GLOBAL_BUILD_TYPE}
          -DBUILD_SHARED_LIBS=TRUE
-+        -DBUILD_TESTING=ON
-         -DCMAKE_PREFIX_PATH=${EXTPREFIX}
+         -DOPUS_STACK_PROTECTOR=OFF
++        -DOPUS_DISABLE_INTRINSICS=TRUE
          ${GLOBAL_PROFILE}
  
+     UPDATE_COMMAND ""
 diff --git a/ext_pyqt-builder/CMakeLists.txt b/ext_pyqt-builder/CMakeLists.txt
 index 27c3769..e4aa0a5 100644
 --- a/ext_pyqt-builder/CMakeLists.txt
 +++ b/ext_pyqt-builder/CMakeLists.txt
-@@ -44,6 +44,8 @@ elseif(WIN32)
+@@ -41,6 +41,8 @@ elseif(WIN32)
          URL_HASH SHA256=3f7a3a2715947a293a97530a76fd59f1309fcb8e57a5830f45c79fe7249b3998
  
          PATCH_COMMAND ${PATCH_COMMAND} -p1 -i ${CMAKE_CURRENT_SOURCE_DIR}/0001-Fix-support-for-MinGW-builds.patch
@@ -49,13 +87,13 @@ diff --git a/ext_python/CMakeLists.txt b/ext_python/CMakeLists.txt
 index 8c78c2f..e0bc761 100644
 --- a/ext_python/CMakeLists.txt
 +++ b/ext_python/CMakeLists.txt
-@@ -104,8 +104,8 @@ if (UNIX)
+@@ -101,8 +101,8 @@ if (UNIX)
  elseif(WIN32)
      ExternalProject_Add( ext_python
          DOWNLOAD_DIR ${EXTERNALS_DOWNLOAD_DIR}
 -        URL https://www.python.org/ftp/python/3.13.5/python-3.13.5-embed-amd64.zip
 -        URL_MD5 370a345dbea8bbc1830a2385f24632d2
-+        URL https://www.python.org/ftp/python/3.13.13/python-3.13.13-embed-arm64.zip
++        URL https://www.python.org/ftp/python/3.13.14/python-3.13.14-embed-arm64.zip
 +        # URL_MD5 370a345dbea8bbc1830a2385f24632d2
  
          CONFIGURE_COMMAND ""
@@ -85,7 +123,7 @@ diff --git a/ext_sip/CMakeLists.txt b/ext_sip/CMakeLists.txt
 index fafc5a4..e52a536 100644
 --- a/ext_sip/CMakeLists.txt
 +++ b/ext_sip/CMakeLists.txt
-@@ -48,6 +48,7 @@ elseif (WIN32)
+@@ -45,6 +45,7 @@ elseif (WIN32)
          URL_HASH SHA256=fa0515697d4c98dbe04d9e898d816de1427e5b9ae5d0e152169109fd21f5d29c
  
          PATCH_COMMAND ${PATCH_COMMAND} -p1 -i ${CMAKE_CURRENT_SOURCE_DIR}/0001-Fix-distinfo.py-to-support-prefix-option-on-Windows-.patch
@@ -156,7 +194,7 @@ diff --git a/ext_vpx/CMakeLists.txt b/ext_vpx/CMakeLists.txt
 index 47764de..3011a4f 100644
 --- a/ext_vpx/CMakeLists.txt
 +++ b/ext_vpx/CMakeLists.txt
-@@ -32,6 +32,7 @@ kis_ExternalProject_Add_with_separate_builds_apple(
+@@ -340,6 +40,7 @@ kis_ExternalProject_Add_with_separate_builds_apple(
      # I guess it is related to the MSVC support. Since we use clang for
      # our builds, it should be fine just to ignore this check
      PATCH_COMMAND ${PATCH_COMMAND} -p1 -i ${CMAKE_CURRENT_SOURCE_DIR}/0001-Allow-shared-libraries-everywhere.patch
@@ -177,19 +215,7 @@ index e4cce67..4b18e2c 100644
      "base/eigen3": "master"
      "base/expat": "master"
      "base/exiv2": "master"
-@@ -30,9 +30,9 @@
-     "base/zug": "master"
-     "base/immer": "master"
-     "base/lager": "master"
--    "base/highway": "master"
-+    # "base/highway": "master"
-     "base/brotli": "master"
--    "base/jpegxl": "master"
-+    #"base/jpegxl": "master"
-     "base/extra_cmake_modules": "master"
-     "base/kconfig": "master"
-     "base/karchive": "master"
-@@ -138,11 +138,11 @@
+@@ -139,11 +139,11 @@
  - 'on': ['Windows']
    'require':
      "base/patch": "master"
@@ -201,9 +227,9 @@ index e4cce67..4b18e2c 100644
 -    "base/icoutils": "master"
 +    # "base/icoutils": "master"
      "base/dlfcn_win32": "master"
+     "base/gperf": "master"
  
- - 'on': ['Windows', 'MacOS']
-@@ -153,7 +153,7 @@
+@@ -155,7 +155,7 @@
      # TODO: check if we actually need that on macOS (required by ki18n)
      "base/gettext": "master"
      # TODO: check if we actually need that on macOS (required by Qt and python)
@@ -212,3 +238,22 @@ index e4cce67..4b18e2c 100644
  
  - 'on': ['Linux', 'MacOS']
    'require':
+diff --git a/requirements.txt b/requirements.txt
+index 475ea7e..dafb0dc 100644
+--- a/requirements.txt
++++ b/requirements.txt
+@@ -432,3 +432,5 @@ setuptools==82.0.1 \
+     --hash=sha256:7d872682c5d01cfde07da7bccc7b65469d3dca203318515ada1de5eda35efbf9 \
+     --hash=sha256:a59e362652f08dcd477c78bb6e7bd9d80a7995bc73ce773050228a348ce2e5bb
+     # via -r requirements.txt.in
++
++pefile==2024.8.26
+diff --git a/requirements.txt.in b/requirements.txt.in
+index d39062d..02fa60d 100644
+--- a/requirements.txt.in
++++ b/requirements.txt.in
+@@ -8,3 +8,4 @@ ply
+ tomli
+ wheel
+ meson
++pefile
