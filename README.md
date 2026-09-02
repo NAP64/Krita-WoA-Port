@@ -112,17 +112,17 @@ Run the following, a zip with your name of choice will be created:
 
 w/ Clang22
 
-         52 - libs-flake-TestSvgParser (Failed)                                 *
-         53 - libs-flake-TestSvgParserCloned (Failed)                           *
+         52 - libs-flake-TestSvgParser (Failed)                                 
+         53 - libs-flake-TestSvgParserCloned (Failed)                           
          54 - libs-flake-TestSvgParserRoundTrip (Failed)
-         59 - libs-pigment-TestKoColorSpaceAbstract (Failed)                    *
+         59 - libs-pigment-TestKoColorSpaceAbstract (Failed)                    
         156 - libs-image-kis_algebra_2d_test (Failed)                           *
         174 - libs-image-kis_cage_transform_worker_test (Failed)
         225 - libs-ui-kis_shape_layer_test (Failed)
-        242 - libs-ui-kis_view_signals_test (SEGFAULT)                          *
+        242 - libs-ui-kis_view_signals_test (SEGFAULT)                          
         254 - libs-resources-TestResourceStorage (Failed)
         283 - plugins-generators-seexpr-kis_seexpr_generator_test (Failed)      *
-        286 - plugins-impex-jpeg-kis_jpeg_test (Exit code 0xc00000ff)           !!!
+        286 - plugins-impex-jpeg-kis_jpeg_test (Exit code 0xc00000ff)           
         287 - plugins-impex-tiff-kis_tiff_test (Failed)
         303 - plugins-impex-heif-KisHeifTest (Failed)
 
@@ -132,6 +132,6 @@ We knew about 52, 53, and 283
 
 156 has something to do with Eigen, where a matrix inversion introduced too much error.
 
-I'll look into the new one soon.
+286 decode gives bad image size, which causes high memory usage and causes crash on ARM and timeout on x86.
 
 Should I do Qt6 as well?
