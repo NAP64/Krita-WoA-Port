@@ -6,7 +6,7 @@ Porting Krita to Windows on Arm64
 
 ## Prepareation
 
-1. Install Visual Studio 2022 v17.14.37. 
+1. Install Visual Studio 2022 v17.14.41. 
 2. Get standalone (or install) python3.13:
     https://www.python.org/ftp/python/3.13.14/python-3.13.14-arm64.zip
 
@@ -22,7 +22,7 @@ Porting Krita to Windows on Arm64
         nmake test
         nmake install
 
-    Note: msvc /O2 /Gs0 still results in bad assembly as of v17.14.37 and v18.8.2, thus patched
+    Note: msvc /O2 /Gs0 still results in bad assembly as of v17.14.41 and v18.10.1, thus patched
    
 5. git, cmake, ninja, llvm as [link](https://docs.krita.org/en/untranslatable_pages/building_krita.html#prerequisites) says
 
@@ -51,6 +51,8 @@ And for ci-utilities:
 
         git apply <path to this repo>\krita-deps-management\ci-utilities.patch
 
+Set PATH to add llvm\bin, llvm\aarch64-w64-mingw32\bin\, straberryperl\perl\site\bin, straberryperl\perl\bin, ninja, and ccache.
+
 Run:
 
         python krita-deps-management\tools\setup-env.py -d -v PythonEnv -p <llvm-mingw-path>\bin\ -p <llvm-mingw-path>\aarch64-w64-mingw32\bin\ -p <ninja-path>
@@ -60,7 +62,7 @@ Set your _install dir of choice as KDECI_SHARED_INSTALL_PATH
 
 Set environment vars for QT: LLVM_INSTALL_DIR
 
-Set PATH to add llvm\bin, llvm\aarch64-w64-mingw32\bin\, straberryperl\perl\site\bin, straberryperl\perl\bin, ninja, and ccache.
+Set PATH again, as env bat can change it.
 
 Run the command to run all builds: 
 
@@ -71,14 +73,13 @@ Command to compile one dependency, for reference:
         python -u ..\ci-utilities\run-ci-build.py --project ext_<name> --branch master --platform Windows/Qt5/Shared --only-build --fail-on-leaked-stage-files --skip-dependencies-fetch
 
 There are a few dependencies that won't compile for Windows on Arm, commented out in latest/krita.dep, check diff to find out.
-Among them, brotli can compile w/o libjxl or highway (patched).
 
-I'm trying if newer tools can help, so Boost is now 1.87 instead of 1.80. To revert simply change the numbers and enable the patches.
+I may try if newer tools helps. To revert simply change the numbers and enable the patches.
 
 *Note: freetype compiles but seems to have issue, but required. Leaving as-is.*
 
 The edit in ext_sip is to workaround a config error in a later stage.
-I'm too lazy to locate the config source.
+I'm too lazy to locate the config source. (may not be an issue by now?)
 
 The edit in ext_pyqt_builder is to have arm64 libs alongside of x64 ones. 
 You don't have to use my binaries:

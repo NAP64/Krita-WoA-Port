@@ -203,44 +203,49 @@ index 47764de..3011a4f 100644
  
      CONFIGURE_ARGS --prefix=${EXTPREFIX}
              -Ddefault_library=shared
-diff --git a/latest/krita-deps.yml b/latest/krita-deps.yml
-index e4cce67..4b18e2c 100644
---- a/latest/krita-deps.yml
-+++ b/latest/krita-deps.yml
-@@ -3,7 +3,7 @@
-     "base/boost": "master"
-     "base/lcms2": "master"
-     "base/png": "master"
--    "base/nasm": "master"
-+    # "base/nasm": "master"
-     "base/eigen3": "master"
-     "base/expat": "master"
-     "base/exiv2": "master"
-@@ -139,11 +139,11 @@
+diff --git a/latest/deps-build-tools.yml b/latest/deps-build-tools.yml
+index 2abdc7d..c86d769 100644
+--- a/latest/deps-build-tools.yml
++++ b/latest/deps-build-tools.yml
+@@ -1,8 +1,8 @@
  - 'on': ['Windows']
    'require':
      "base/patch": "master"
 -    "base/strawberryperl": "master"
-+    # "base/strawberryperl": "master"
++#    "base/strawberryperl": "master"
+
+-- 'on': ['@all']
+-  'require':
+-    "base/nasm": "master"
+\ No newline at end of file
++#- 'on': ['@all']
++#  'require':
++#    "base/nasm": "master"
+\ No newline at end of file
+diff --git a/latest/krita-deps.yml b/latest/krita-deps.yml
+index 25fdd3d..3326f27 100644
+--- a/latest/krita-deps.yml
++++ b/latest/krita-deps.yml
+@@ -140,7 +140,7 @@
      "base/zlib": "master"
      "base/googleangle": "master"
      "base/drmingw": "master"
 -    "base/icoutils": "master"
-+    # "base/icoutils": "master"
++#    "base/icoutils": "master"
      "base/dlfcn_win32": "master"
      "base/gperf": "master"
- 
-@@ -155,7 +155,7 @@
+
+@@ -152,7 +152,7 @@
      # TODO: check if we actually need that on macOS (required by ki18n)
      "base/gettext": "master"
      # TODO: check if we actually need that on macOS (required by Qt and python)
 -    "base/openssl": "master"
 +    #"base/openssl": "master"
- 
+
  - 'on': ['Linux', 'MacOS']
    'require':
 diff --git a/requirements.txt b/requirements.txt
-index 475ea7e..dafb0dc 100644
+index 475ea7e..d0d40c8 100644
 --- a/requirements.txt
 +++ b/requirements.txt
 @@ -432,3 +432,6 @@ setuptools==82.0.1 \
