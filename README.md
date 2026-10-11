@@ -8,7 +8,7 @@ Porting Krita to Windows on Arm64
 
 1. Install Visual Studio 2022 v17.14.41. 
 2. Get standalone (or install) python3.13:
-    https://www.python.org/ftp/python/3.13.14/python-3.13.14-arm64.zip
+    https://www.python.org/ftp/python/3.13.16/python-3.13.16-arm64.zip
 
 3. Install StrawberryPerl (I couldn't find an Arm64 alternative, x64 should be fine tho)
 

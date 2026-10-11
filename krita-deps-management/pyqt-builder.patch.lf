@@ -50143,4 +50143,22 @@ index 0000000..763e8b5
 + pyqtbuild/bundle/packages/__init__.py
 + pyqtbuild/bundle/packages/pyqt.py
 + pyqtbuild/bundle/packages/pyqt3d.py
-
+diff --git a/latest/deps-build-tools.yml b/latest/deps-build-tools.yml
+index 2abdc7d..c86d769 100644
+--- a/latest/deps-build-tools.yml
++++ b/latest/deps-build-tools.yml
+@@ -1,8 +1,8 @@
+ - 'on': ['Windows']
+   'require':
+     "base/patch": "master"
+-    "base/strawberryperl": "master"
++#    "base/strawberryperl": "master"
+ 
+-- 'on': ['@all']
+-  'require':
+-    "base/nasm": "master"
+\ No newline at end of file
++#- 'on': ['@all']
++#  'require':
++#    "base/nasm": "master"
+\ No newline at end of file

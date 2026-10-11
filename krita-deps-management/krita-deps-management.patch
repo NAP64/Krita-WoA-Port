@@ -94,7 +94,7 @@ index 8c78c2f..e0bc761 100644
          DOWNLOAD_DIR ${EXTERNALS_DOWNLOAD_DIR}
 -        URL https://www.python.org/ftp/python/3.13.5/python-3.13.5-embed-amd64.zip
 -        URL_MD5 370a345dbea8bbc1830a2385f24632d2
-+        URL https://www.python.org/ftp/python/3.13.14/python-3.13.14-embed-arm64.zip
++        URL https://www.python.org/ftp/python/3.13.16/python-3.13.16-embed-arm64.zip
 +        # URL_MD5 370a345dbea8bbc1830a2385f24632d2
  
          CONFIGURE_COMMAND ""
@@ -203,25 +203,6 @@ index 47764de..3011a4f 100644
  
      CONFIGURE_ARGS --prefix=${EXTPREFIX}
              -Ddefault_library=shared
-diff --git a/latest/deps-build-tools.yml b/latest/deps-build-tools.yml
-index 2abdc7d..c86d769 100644
---- a/latest/deps-build-tools.yml
-+++ b/latest/deps-build-tools.yml
-@@ -1,8 +1,8 @@
- - 'on': ['Windows']
-   'require':
-     "base/patch": "master"
--    "base/strawberryperl": "master"
-+#    "base/strawberryperl": "master"
-
--- 'on': ['@all']
--  'require':
--    "base/nasm": "master"
-\ No newline at end of file
-+#- 'on': ['@all']
-+#  'require':
-+#    "base/nasm": "master"
-\ No newline at end of file
 diff --git a/latest/krita-deps.yml b/latest/krita-deps.yml
 index 25fdd3d..3326f27 100644
 --- a/latest/krita-deps.yml
@@ -234,14 +215,14 @@ index 25fdd3d..3326f27 100644
 +#    "base/icoutils": "master"
      "base/dlfcn_win32": "master"
      "base/gperf": "master"
-
+ 
 @@ -152,7 +152,7 @@
      # TODO: check if we actually need that on macOS (required by ki18n)
      "base/gettext": "master"
      # TODO: check if we actually need that on macOS (required by Qt and python)
 -    "base/openssl": "master"
 +    #"base/openssl": "master"
-
+ 
  - 'on': ['Linux', 'MacOS']
    'require':
 diff --git a/requirements.txt b/requirements.txt
